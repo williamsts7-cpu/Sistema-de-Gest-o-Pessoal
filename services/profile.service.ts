@@ -21,3 +21,10 @@ export async function getCurrentProfile(client: SupabaseClient): Promise<Profile
 
   return profile ? { ...profile, full_name: profile.full_name || authName || null } : null
 }
+
+export async function updateProfileLocale(client: SupabaseClient, locale: "pt-BR" | "en"): Promise<void> {
+  const { data: { user }, error: userError } = await client.auth.getUser()
+  if (userError || !user) serviceError("Nao foi possivel validar sua sessao.", userError)
+  const { error } = await client.from("profiles").update({ locale }).eq("id", user.id)
+  if (error) serviceError("Nao foi possivel atualizar o idioma.", error)
+}
