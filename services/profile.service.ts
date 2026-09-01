@@ -4,9 +4,18 @@ import { serviceError } from "@/services/errors"
 
 const PROFILE_COLUMNS = "id, full_name, avatar_url, timezone, locale, theme, settings"
 
+function isMissingAuthSession(error: unknown) {
+  if (!error || typeof error !== "object") return false
+  const { name, message } = error as { name?: unknown; message?: unknown }
+  return name === "AuthSessionMissingError" || String(message || "").includes("Auth session missing")
+}
+
 export async function getCurrentProfile(client: SupabaseClient): Promise<Profile | null> {
   const { data: { user }, error: userError } = await client.auth.getUser()
-  if (userError) serviceError("Nao foi possivel validar sua sessao.", userError)
+  if (userError) {
+    if (isMissingAuthSession(userError)) return null
+    serviceError("Nao foi possivel validar sua sessao.", userError)
+  }
   if (!user) return null
 
   const { data, error } = await client.from("profiles").select(PROFILE_COLUMNS).eq("id", user.id).maybeSingle()

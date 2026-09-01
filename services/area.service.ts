@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Area, AreaCreate, AreaUpdate } from "@/types/database"
 import { serviceError } from "@/services/errors"
 
-const AREA_COLUMNS = "id, user_id, parent_id, name, slug, description, icon, color, position, status, is_favorite, metadata, created_at, updated_at, archived_at"
+const AREA_COLUMNS = "id, user_id, parent_id, name, slug, description, icon, color, position, status, metadata, created_at, updated_at, archived_at"
 
 export async function listAreas(client: SupabaseClient): Promise<Area[]> {
   const { data, error } = await client.from("areas").select(AREA_COLUMNS).neq("status", "archived").order("position")
