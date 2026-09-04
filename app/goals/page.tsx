@@ -1,7 +1,9 @@
 import { Flag, Gauge, Target, Trophy } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { listGoals } from "@/services/pos-lists.service"
+import { listAreas } from "@/services/area.service"
 import { formatDateOnly, statusLabel } from "@/services/pos-overview.logic"
+import { CreateGoalPanel } from "@/components/features/module-create-panels"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -11,7 +13,8 @@ function progressValue(value: number | null | undefined) {
 }
 
 export default async function GoalsPage() {
-  const goals = await listGoals(await createClient())
+  const client = await createClient()
+  const [goals, areas] = await Promise.all([listGoals(client), listAreas(client)])
   const activeGoals = goals.filter((goal) => !["completed", "archived", "cancelled"].includes(goal.status))
   const averageProgress = goals.length ? Math.round(goals.reduce((total, goal) => total + progressValue(goal.progress), 0) / goals.length) : 0
 
@@ -23,8 +26,10 @@ export default async function GoalsPage() {
           <span className="text-xs font-medium uppercase tracking-[0.24em] text-violet-300">Direção</span>
         </div>
         <h1 className="text-3xl font-bold tracking-tight">Metas</h1>
-        <p className="mt-2 text-muted-foreground">Objetivos, progresso e critérios de sucesso do seu ciclo.</p>
+        <p className="mt-2 text-muted-foreground">Objetivos SMART, progresso e critérios de sucesso do seu ciclo.</p>
       </section>
+
+      <CreateGoalPanel areas={areas} />
 
       <section className="grid gap-4 sm:grid-cols-3">
         <Card className="glass-panel rounded-[24px]"><CardContent className="p-5"><p className="text-xs uppercase tracking-[0.18em] text-violet-300">Total</p><p className="mt-2 text-3xl font-semibold">{goals.length}</p></CardContent></Card>
@@ -53,6 +58,7 @@ export default async function GoalsPage() {
                 <div>
                   <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground"><span className="flex items-center"><Gauge className="mr-1 size-3" />Progresso</span><span>{progress}%</span></div>
                   <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-400" style={{ width: `${progress}%` }} /></div>
+                  {(goal.metric_name || goal.target_value !== null) && <p className="mt-2 text-xs text-muted-foreground">{goal.metric_name || "Métrica"}: {goal.current_value ?? 0}{goal.metric_unit ? ` ${goal.metric_unit}` : ""} de {goal.target_value ?? "alvo não definido"}</p>}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="outline" className="border-white/10 bg-white/5"><Flag className="mr-1 size-3" />{goal.priority}</Badge>

@@ -1,12 +1,15 @@
 import { CheckCircle2, Clock3, Repeat2, Timer } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { listRoutines } from "@/services/pos-lists.service"
+import { listGoals, listRoutines } from "@/services/pos-lists.service"
+import { listAreas } from "@/services/area.service"
 import { formatRoutineSchedule, statusLabel } from "@/services/pos-overview.logic"
+import { CreateRoutinePanel } from "@/components/features/module-create-panels"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 
 export default async function RoutinesPage() {
-  const routines = await listRoutines(await createClient())
+  const client = await createClient()
+  const [routines, areas, goals] = await Promise.all([listRoutines(client), listAreas(client), listGoals(client)])
   const activeRoutines = routines.filter((routine) => routine.status === "active")
   const scheduledRoutines = routines.filter((routine) => routine.schedules.length > 0)
 
@@ -20,6 +23,8 @@ export default async function RoutinesPage() {
         <h1 className="text-3xl font-bold tracking-tight">Rotinas</h1>
         <p className="mt-2 text-muted-foreground">Rituais recorrentes, horários e duração estimada.</p>
       </section>
+
+      <CreateRoutinePanel areas={areas} goals={goals} />
 
       <section className="grid gap-4 sm:grid-cols-3">
         <Card className="glass-panel rounded-[24px]"><CardContent className="p-5"><p className="text-xs uppercase tracking-[0.18em] text-emerald-300">Total</p><p className="mt-2 text-3xl font-semibold">{routines.length}</p></CardContent></Card>

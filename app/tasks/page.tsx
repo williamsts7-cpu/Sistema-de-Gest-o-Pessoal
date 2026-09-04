@@ -1,24 +1,36 @@
 import { CalendarClock, CheckSquare2, Clock, Flag } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { listTasks } from "@/services/pos-lists.service"
+import { listGoals, listProjects, listTasks } from "@/services/pos-lists.service"
+import { listAreas } from "@/services/area.service"
 import { formatDateTime, statusLabel } from "@/services/pos-overview.logic"
+import { CreateTaskPanel } from "@/components/features/module-create-panels"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 
 export default async function TasksPage() {
-  const tasks = await listTasks(await createClient())
+  const client = await createClient()
+  const [tasks, areas, goals, projects] = await Promise.all([
+    listTasks(client),
+    listAreas(client),
+    listGoals(client),
+    listProjects(client),
+  ])
   const openTasks = tasks.filter((task) => !["completed", "cancelled", "archived"].includes(task.status))
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-      <section>
-        <div className="mb-3 flex items-center gap-3">
-          <div className="h-px w-8 bg-fuchsia-500" />
-          <span className="text-xs font-medium uppercase tracking-[0.24em] text-fuchsia-400">Execução</span>
+      <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="mb-3 flex items-center gap-3">
+            <div className="h-px w-8 bg-fuchsia-500" />
+            <span className="text-xs font-medium uppercase tracking-[0.24em] text-fuchsia-400">Execução</span>
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight">Tarefas</h1>
+          <p className="mt-2 text-muted-foreground">Ações abertas, próximas entregas e compromissos operacionais.</p>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight">Tarefas</h1>
-        <p className="mt-2 text-muted-foreground">Ações abertas, próximas entregas e compromissos operacionais.</p>
       </section>
+
+      <CreateTaskPanel areas={areas} goals={goals} projects={projects} />
 
       <section className="grid gap-4 sm:grid-cols-3">
         <Card className="glass-panel rounded-[24px]"><CardContent className="p-5"><p className="text-xs uppercase tracking-[0.18em] text-fuchsia-300">Total</p><p className="mt-2 text-3xl font-semibold">{tasks.length}</p></CardContent></Card>

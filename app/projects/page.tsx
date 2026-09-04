@@ -1,7 +1,9 @@
 import { CalendarDays, FolderKanban, Gauge, Target } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { listProjects } from "@/services/pos-lists.service"
+import { listGoals, listProjects } from "@/services/pos-lists.service"
+import { listAreas } from "@/services/area.service"
 import { formatDateOnly, statusLabel } from "@/services/pos-overview.logic"
+import { CreateProjectPanel } from "@/components/features/module-create-panels"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -11,7 +13,8 @@ function progressValue(value: number | null | undefined) {
 }
 
 export default async function ProjectsPage() {
-  const projects = await listProjects(await createClient())
+  const client = await createClient()
+  const [projects, areas, goals] = await Promise.all([listProjects(client), listAreas(client), listGoals(client)])
   const activeProjects = projects.filter((project) => !["completed", "archived", "cancelled"].includes(project.status))
   const averageProgress = projects.length ? Math.round(projects.reduce((total, project) => total + progressValue(project.progress), 0) / projects.length) : 0
 
@@ -25,6 +28,8 @@ export default async function ProjectsPage() {
         <h1 className="text-3xl font-bold tracking-tight">Projetos</h1>
         <p className="mt-2 text-muted-foreground">Frentes ativas, progresso e prazos dos seus projetos.</p>
       </section>
+
+      <CreateProjectPanel areas={areas} goals={goals} />
 
       <section className="grid gap-4 sm:grid-cols-3">
         <Card className="glass-panel rounded-[24px]"><CardContent className="p-5"><p className="text-xs uppercase tracking-[0.18em] text-indigo-300">Total</p><p className="mt-2 text-3xl font-semibold">{projects.length}</p></CardContent></Card>

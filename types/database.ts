@@ -10,6 +10,22 @@ export interface Profile {
   settings: Json | null
 }
 
+export interface Purpose {
+  id: string
+  user_id: string
+  purpose: string | null
+  mission: string | null
+  vision: string | null
+  identity_statement: string | null
+  long_term_vision: string | null
+  values: Json | null
+  principles: Json | null
+  priorities: Json | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface Area {
   id: string
   user_id: string
@@ -153,6 +169,21 @@ export interface RoutineSchedule {
   active: boolean
   created_at: string
   updated_at: string
+}
+
+export interface Process {
+  id: string
+  user_id: string
+  area_id: string | null
+  title: string
+  description: string | null
+  instructions: string | null
+  status: string
+  is_template: boolean
+  metadata: Json | null
+  created_at: string
+  updated_at: string
+  archived_at: string | null
 }
 
 export interface CalendarEvent {

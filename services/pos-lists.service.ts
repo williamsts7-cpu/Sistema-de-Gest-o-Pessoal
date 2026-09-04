@@ -1,14 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
-import type { CalendarEvent, Goal, Habit, Project, Routine, RoutineSchedule, RoutineWithSchedules, Task } from "@/types/database"
+import type { CalendarEvent, Goal, Habit, Process, Project, Purpose, Routine, RoutineSchedule, RoutineWithSchedules, Task } from "@/types/database"
 import { serviceError } from "@/services/errors"
 
-const TASK_COLUMNS = "id,user_id,parent_task_id,area_id,goal_id,project_id,process_id,process_step_id,title,description,status,priority,context,energy_level,estimated_minutes,actual_minutes,scheduled_at,due_at,started_at,completed_at,position,is_favorite,notes,metadata,created_at,updated_at,archived_at"
-const GOAL_COLUMNS = "id,user_id,area_id,title,description,status,priority,start_date,due_date,completed_at,progress,metric_name,metric_unit,initial_value,current_value,target_value,motivation,success_criteria,notes,metadata,created_at,updated_at,archived_at"
-const PROJECT_COLUMNS = "id,user_id,area_id,goal_id,title,description,status,priority,start_date,due_date,completed_at,progress,notes,metadata,created_at,updated_at,archived_at"
-const HABIT_COLUMNS = "id,user_id,area_id,goal_id,title,description,status,frequency,days_of_week,target_count,metadata,created_at,updated_at,archived_at"
-const ROUTINE_COLUMNS = "id,user_id,area_id,goal_id,title,description,status,priority,estimated_minutes,checklist,notes,metadata,created_at,updated_at,archived_at"
-const ROUTINE_SCHEDULE_COLUMNS = "id,user_id,routine_id,frequency,days_of_week,day_of_month,time_of_day,duration_minutes,recurrence_rule,start_date,end_date,active,created_at,updated_at"
-const CALENDAR_EVENT_COLUMNS = "id,user_id,area_id,task_id,project_id,routine_id,title,description,start_at,end_at,all_day,location,event_type,external_provider,external_id,metadata,created_at,updated_at"
+export const TASK_COLUMNS = "id,user_id,parent_task_id,area_id,goal_id,project_id,process_id,process_step_id,title,description,status,priority,context,energy_level,estimated_minutes,actual_minutes,scheduled_at,due_at,started_at,completed_at,position,is_favorite,notes,metadata,created_at,updated_at,archived_at"
+export const GOAL_COLUMNS = "id,user_id,area_id,title,description,status,priority,start_date,due_date,completed_at,progress,metric_name,metric_unit,initial_value,current_value,target_value,motivation,success_criteria,notes,metadata,created_at,updated_at,archived_at"
+export const PROJECT_COLUMNS = "id,user_id,area_id,goal_id,title,description,status,priority,start_date,due_date,completed_at,progress,notes,metadata,created_at,updated_at,archived_at"
+export const HABIT_COLUMNS = "id,user_id,area_id,goal_id,title,description,status,frequency,days_of_week,target_count,metadata,created_at,updated_at,archived_at"
+export const ROUTINE_COLUMNS = "id,user_id,area_id,goal_id,title,description,status,priority,estimated_minutes,checklist,notes,metadata,created_at,updated_at,archived_at"
+export const ROUTINE_SCHEDULE_COLUMNS = "id,user_id,routine_id,frequency,days_of_week,day_of_month,time_of_day,duration_minutes,recurrence_rule,start_date,end_date,active,created_at,updated_at"
+export const PROCESS_COLUMNS = "id,user_id,area_id,title,description,instructions,status,is_template,metadata,created_at,updated_at,archived_at"
+export const PURPOSE_COLUMNS = "id,user_id,purpose,mission,vision,identity_statement,long_term_vision,values,principles,priorities,notes,created_at,updated_at"
+export const CALENDAR_EVENT_COLUMNS = "id,user_id,area_id,task_id,project_id,routine_id,title,description,start_at,end_at,all_day,location,event_type,external_provider,external_id,metadata,created_at,updated_at"
 
 function isMissingAuthSession(error: unknown) {
   if (!error || typeof error !== "object") return false
@@ -38,6 +40,15 @@ async function safeQuery<T>(label: string, query: PromiseLike<{ data: T[] | null
     serviceError(label, error)
   }
   return data ?? []
+}
+
+async function safeMaybe<T>(label: string, query: PromiseLike<{ data: T | null; error: unknown }>) {
+  const { data, error } = await query
+  if (error) {
+    if (isMissingSchemaError(error)) return null
+    serviceError(label, error)
+  }
+  return data ?? null
 }
 
 export async function listTasks(client: SupabaseClient): Promise<Task[]> {
@@ -134,6 +145,36 @@ export async function listRoutines(client: SupabaseClient): Promise<RoutineWithS
     ...routine,
     schedules: schedules.filter((schedule) => schedule.routine_id === routine.id),
   }))
+}
+
+export async function listProcesses(client: SupabaseClient): Promise<Process[]> {
+  const userId = await getUserId(client)
+  if (!userId) return []
+
+  return safeQuery<Process>(
+    "Nao foi possivel carregar seus processos.",
+    client
+      .from("processes")
+      .select(PROCESS_COLUMNS)
+      .eq("user_id", userId)
+      .is("archived_at", null)
+      .order("created_at", { ascending: false })
+      .limit(50)
+  )
+}
+
+export async function getPurpose(client: SupabaseClient): Promise<Purpose | null> {
+  const userId = await getUserId(client)
+  if (!userId) return null
+
+  return safeMaybe<Purpose>(
+    "Nao foi possivel carregar seu proposito.",
+    client
+      .from("purposes")
+      .select(PURPOSE_COLUMNS)
+      .eq("user_id", userId)
+      .maybeSingle()
+  )
 }
 
 export async function listCalendarEvents(client: SupabaseClient): Promise<CalendarEvent[]> {

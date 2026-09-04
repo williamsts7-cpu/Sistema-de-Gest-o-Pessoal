@@ -1,7 +1,9 @@
 import { Activity, CalendarDays, Repeat2, Target } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { listHabits } from "@/services/pos-lists.service"
+import { listGoals, listHabits } from "@/services/pos-lists.service"
+import { listAreas } from "@/services/area.service"
 import { statusLabel } from "@/services/pos-overview.logic"
+import { CreateHabitPanel } from "@/components/features/module-create-panels"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -21,7 +23,8 @@ function frequencyLabel(frequency: string | null | undefined) {
 }
 
 export default async function HabitsPage() {
-  const habits = await listHabits(await createClient())
+  const client = await createClient()
+  const [habits, areas, goals] = await Promise.all([listHabits(client), listAreas(client), listGoals(client)])
   const activeHabits = habits.filter((habit) => habit.status === "active")
   const dailyHabits = habits.filter((habit) => habit.frequency === "daily")
 
@@ -35,6 +38,8 @@ export default async function HabitsPage() {
         <h1 className="text-3xl font-bold tracking-tight">Hábitos</h1>
         <p className="mt-2 text-muted-foreground">Hábitos rastreáveis, frequência e alvo de repetição.</p>
       </section>
+
+      <CreateHabitPanel areas={areas} goals={goals} />
 
       <section className="grid gap-4 sm:grid-cols-3">
         <Card className="glass-panel rounded-[24px]"><CardContent className="p-5"><p className="text-xs uppercase tracking-[0.18em] text-emerald-300">Total</p><p className="mt-2 text-3xl font-semibold">{habits.length}</p></CardContent></Card>
