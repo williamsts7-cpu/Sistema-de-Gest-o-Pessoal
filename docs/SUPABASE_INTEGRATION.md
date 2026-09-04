@@ -22,6 +22,10 @@ Queries ficam em `services/`. Cada mutacao obtem o usuario autenticado e inclui 
 
 - Profile: leitura.
 - Areas: listagem, criacao, edicao e arquivamento logico.
+- Tasks: listagem e criacao rapida via Quick Capture.
+- Goals: listagem e criacao rapida via Quick Capture.
+- Projects: listagem e criacao rapida via Quick Capture.
+- Habits: listagem e criacao rapida via Quick Capture.
 - Inbox: Quick Capture persiste um item manual nao processado.
 
 ## Como testar
@@ -31,6 +35,6 @@ Queries ficam em `services/`. Cada mutacao obtem o usuario autenticado e inclui 
 3. Confira o profile em Settings.
 4. Em Areas, crie e edite uma area; recarregue a pagina para validar persistencia.
 5. Arquive a area e confirme que ela deixa a listagem ativa.
-6. Use Quick Capture e confira `inbox_items` respeitando o usuario autenticado.
+6. Use Quick Capture e confira que cada tipo escolhido persiste na tabela correta: `tasks`, `goals`, `projects`, `habits` ou `inbox_items`, sempre respeitando o usuario autenticado.
 
 Erros 401 normalmente indicam sessao expirada. Erros RLS indicam policy ausente/incompativel ou `user_id` incorreto. Profile ausente indica que o trigger de criacao precisa ser verificado no projeto Supabase.

@@ -53,6 +53,43 @@ export interface Goal {
   archived_at: string | null
 }
 
+export interface Project {
+  id: string
+  user_id: string
+  area_id: string | null
+  goal_id: string | null
+  title: string
+  description: string | null
+  status: string
+  priority: string
+  start_date: string | null
+  due_date: string | null
+  completed_at: string | null
+  progress: number
+  notes: string | null
+  metadata: Json | null
+  created_at: string
+  updated_at: string
+  archived_at: string | null
+}
+
+export interface Habit {
+  id: string
+  user_id: string
+  area_id: string | null
+  goal_id: string | null
+  title: string
+  description: string | null
+  status: string
+  frequency: string
+  days_of_week: number[] | null
+  target_count: number
+  metadata: Json | null
+  created_at: string
+  updated_at: string
+  archived_at: string | null
+}
+
 export interface Task {
   id: string
   user_id: string

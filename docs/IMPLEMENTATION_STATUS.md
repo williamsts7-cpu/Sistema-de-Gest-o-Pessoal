@@ -6,13 +6,13 @@
 - Profile: Completed. Leitura do usuario atual em Settings.
 - Areas: Completed. Listagem, criacao, edicao e arquivamento logico.
 - Dashboard: Connected. Resumo conectado aos services do Supabase quando ha sessao e dados disponiveis.
-- Goals: Read-only connected. Lista metas do Supabase; criacao/edicao ainda nao implementadas na UI.
-- Tasks: Read-only connected. Lista tarefas do Supabase; criacao/edicao ainda nao implementadas na UI.
+- Goals: Connected. Lista metas do Supabase; criacao rapida via Quick Capture; edicao detalhada ainda nao implementada na UI.
+- Tasks: Connected. Lista tarefas do Supabase; criacao rapida via Quick Capture; edicao detalhada ainda nao implementada na UI.
 - Routines: Read-only connected. Lista rotinas e agendas do Supabase; criacao/edicao ainda nao implementadas na UI.
 - Calendar: Read-only connected. Lista eventos do Supabase; criacao/edicao ainda nao implementadas na UI.
 - Inbox: Partial. Quick Capture persiste item manual; pagina de gestao ainda esta pendente.
-- Projects: Placeholder. UI final e conexao completa ainda pendentes.
-- Habits: Placeholder. UI final e conexao completa ainda pendentes.
+- Projects: Connected. Lista projetos do Supabase; criacao rapida via Quick Capture; edicao detalhada ainda nao implementada na UI.
+- Habits: Connected. Lista habitos do Supabase; criacao rapida via Quick Capture; edicao detalhada ainda nao implementada na UI.
 - Processes: Placeholder. UI final e conexao completa ainda pendentes.
 - Knowledge: Placeholder. UI final e conexao completa ainda pendentes.
 - Studies: Placeholder. UI final e conexao completa ainda pendentes.
